@@ -171,31 +171,47 @@ const defaultConfig = {
       "undo",
       "redo",
       "|",
+      "style",
       "heading",
+      "|",
+      "fontSize",
+      "fontFamily",
+      "fontColor",
+      "fontBackgroundColor",
+      "removeFormat",
       "|",
       "bold",
       "italic",
       "underline",
       "strikethrough",
+      "subscript",
+      "superscript",
       "|",
+      "alignment:left",
+      "alignment:right",
+      "alignment:center",
+      "alignment:justify",
+      "|",
+      "specialCharacters",
       "link",
-      "uploadImage",
       "insertTable",
-      "blockQuote",
-      "mediaEmbed",
+      "highlight",
+      "|",
+      "insertImage",
+      "insertImageViaUrl",
+      "toggleImageCaption",
+      "imageTextAlternative",
+      "|",
+      "pageBreak",
+      "horizontalLine",
       "|",
       "bulletedList",
       "numberedList",
+      "multiLevelList",
       "todoList",
       "|",
       "outdent",
       "indent",
-      "|",
-      "fontColor",
-      "fontBackgroundColor",
-      "highlight",
-      "|",
-      "alignment",
       "|",
       "sourceEditing",
       "MultiLevelList",
@@ -203,13 +219,40 @@ const defaultConfig = {
     shouldNotGroupWhenFull: true,
   },
   image: {
+    styles: ["full", "side", "alignLeft", "alignCenter", "alignRight"],
     toolbar: [
-      "imageTextAlternative",
       "toggleImageCaption",
+      "imageTextAlternative",
       "|",
       "imageStyle:inline",
-      "imageStyle:block",
-      "imageStyle:side",
+      "imageStyle:wrapText",
+      "imageStyle:breakText",
+      "imageStyle:alignLeft",
+      "imageStyle:alignCenter",
+      "imageStyle:alignRight",
+      "imageResize",
+    ],
+    resizeOptions: [
+      {
+        name: "resizeImage:original",
+        value: null,
+        icon: "original",
+      },
+      {
+        name: "resizeImage:custom",
+        value: "custom",
+        icon: "custom",
+      },
+      {
+        name: "resizeImage:50",
+        value: "50",
+        icon: "medium",
+      },
+      {
+        name: "resizeImage:75",
+        value: "75",
+        icon: "large",
+      },
     ],
   },
   table: {
@@ -221,8 +264,279 @@ const defaultConfig = {
       "tableCellProperties",
     ],
   },
+  fontFamily: {
+    options: [
+      "default",
+      "Arial, Helvetica, sans-serif",
+      "Calibri, sans-serif",
+      "Courier New, Courier, monospace",
+      "Georgia, serif",
+      "Lucida Sans Unicode, Lucida Grande, sans-serif",
+      "Tahoma, Geneva, sans-serif",
+      "Times New Roman, Times, serif",
+      "Trebuchet MS, Helvetica, sans-serif",
+      "Verdana, Geneva, sans-serif",
+    ],
+    supportAllValues: true,
+  },
+  fontColor: {
+    colors: [
+      {
+        color: "#000000",
+        label: "Black",
+      },
+      {
+        color: "#4d4d4d",
+        label: "Dim grey",
+      },
+      {
+        color: "#999999",
+        label: "Grey",
+      },
+      {
+        color: "#e6e6e6",
+        label: "Light grey",
+      },
+      {
+        color: "#ffffff",
+        label: "White",
+      },
+      {
+        color: "#e64c4c",
+        label: "Red",
+      },
+      {
+        color: "#e6994c",
+        label: "Orange",
+      },
+      {
+        color: "#e6e64c",
+        label: "Yellow",
+      },
+      {
+        color: "#99e64c",
+        label: "Light green",
+      },
+      {
+        color: "#4ce64c",
+        label: "Green",
+      },
+    ],
+    columns: 3,
+    documentColors: 0,
+    colorPicker: {
+      format: "hex",
+    },
+  },
+  fontSize: {
+    options: [
+      {
+        title: "10",
+        model: "10pt",
+      },
+      {
+        title: "12",
+        model: "12pt",
+      },
+      {
+        title: "14",
+        model: "14pt",
+      },
+      {
+        title: "16",
+        model: "16pt",
+      },
+      {
+        title: "18",
+        model: "18pt",
+      },
+      {
+        title: "20",
+        model: "20pt",
+      },
+      {
+        title: "22",
+        model: "22pt",
+      },
+    ],
+    fontBackgroundColor: {
+      colors: [
+        {
+          color: "#000000",
+          label: "Black",
+        },
+        {
+          color: "#4d4d4d",
+          label: "Dim grey",
+        },
+        {
+          color: "#999999",
+          label: "Grey",
+        },
+        {
+          color: "#e6e6e6",
+          label: "Light grey",
+        },
+        {
+          color: "#ffffff",
+          label: "White",
+        },
+        {
+          color: "#e64c4c",
+          label: "Red",
+        },
+        {
+          color: "#e6994c",
+          label: "Orange",
+        },
+        {
+          color: "#e6e64c",
+          label: "Yellow",
+        },
+        {
+          color: "#99e64c",
+          label: "Light green",
+        },
+        {
+          color: "#4ce64c",
+          label: "Green",
+        },
+      ],
+      columns: 3,
+      documentColors: 0,
+      colorPicker: {
+        format: "hex",
+      },
+    },
+    supportAllValues: true,
+  },
+  heading: {
+    options: [
+      {
+        model: "paragraph",
+        title: "Paragraph",
+        class: "ck-heading_paragraph",
+      },
+      {
+        model: "heading1",
+        view: "h1",
+        title: "Heading 1",
+        class: "ck-heading_heading1",
+      },
+      {
+        model: "heading2",
+        view: "h2",
+        title: "Heading 2",
+        class: "ck-heading_heading2",
+      },
+      {
+        model: "heading3",
+        view: "h3",
+        title: "Heading 3",
+        class: "ck-heading_heading3",
+      },
+      {
+        model: "heading4",
+        view: "h4",
+        title: "Heading 4",
+        class: "ck-heading_heading4",
+      },
+      {
+        model: "heading5",
+        view: "h5",
+        title: "Heading 5",
+        class: "ck-heading_heading5",
+      },
+      {
+        model: "heading6",
+        view: "h6",
+        title: "Heading 6",
+        class: "ck-heading_heading6",
+      },
+    ],
+  },
+  htmlSupport: {
+    allow: [
+      {
+        name: /.*/,
+        attributes: true,
+        classes: true,
+        styles: true,
+      },
+    ],
+  },
   // This value must be kept in sync with the language defined in webpack.config.js.
   language: "en",
+  link: {
+    addTargetToExternalLinks: true,
+    defaultProtocol: "https://",
+    decorators: {
+      toggleDownloadable: {
+        mode: "manual",
+        label: "Downloadable",
+        attributes: {
+          download: "file",
+        },
+      },
+    },
+  },
+  list: {
+    properties: {
+      styles: true,
+      startIndex: true,
+      reversed: true,
+    },
+  },
+  style: {
+    definitions: [
+      {
+        name: "Article category",
+        element: "h3",
+        classes: ["category"],
+      },
+      {
+        name: "Title",
+        element: "h2",
+        classes: ["document-title"],
+      },
+      {
+        name: "Subtitle",
+        element: "h3",
+        classes: ["document-subtitle"],
+      },
+      {
+        name: "Info box",
+        element: "p",
+        classes: ["info-box"],
+      },
+      {
+        name: "Side quote",
+        element: "blockquote",
+        classes: ["side-quote"],
+      },
+      {
+        name: "Marker",
+        element: "span",
+        classes: ["marker"],
+      },
+      {
+        name: "Spoiler",
+        element: "span",
+        classes: ["spoiler"],
+      },
+      {
+        name: "Code (dark)",
+        element: "pre",
+        classes: ["fancy-code", "fancy-code-dark"],
+      },
+      {
+        name: "Code (bright)",
+        element: "pre",
+        classes: ["fancy-code", "fancy-code-bright"],
+      },
+    ],
+  },
+  placeholder: "Type or paste your content here!",
 };
 
 // Create the editor configuration with plugins

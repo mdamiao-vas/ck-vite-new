@@ -5,6 +5,7 @@ import {
   pluginList,
   editorConfig,
   LICENSE_KEY,
+  defaultConfig,
 } from "./main.js";
 
 class CKEditorCS extends ClassicEditor {}
@@ -16,6 +17,8 @@ CKEditorCS.builtinPlugins = pluginList;
 CKEditorCS.editorConfig = editorConfig;
 
 CKEditorCS.LICENSE_KEY = LICENSE_KEY;
+
+CKEditorCS.defaultConfig = defaultConfig;
 
 // 2. Export editor class.
 export default CKEditorCS;
