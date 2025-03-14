@@ -1,0 +1,15 @@
+{
+  "name": "ckeditor5-custom-project",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "vite"
+  },
+  "devDependencies": {
+    "ckeditor5": "44.3.0",
+    "ckeditor5-premium-features": "44.3.0",
+    "mini-css-extract-plugin": "^2.9.2",
+    "vite": "^5.0.0",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  }
+}
