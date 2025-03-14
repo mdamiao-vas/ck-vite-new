@@ -71,14 +71,16 @@ import {
   TableToolbar,
   TextPartLanguage,
   TextTransformation,
-  Title,
   TodoList,
   Underline,
   WordCount,
 } from "ckeditor5";
 
 //import { MultiLevelList } from "ckeditor5-premium-features";
-
+/* 
+Importing directly from "ckeditor5-premium-features" breaks the bundle if new premium features are needed you need to import them directly
+fro mthe node modules like the multiLevelList.
+ */
 import { MultiLevelList } from "@ckeditor/ckeditor5-list-multi-level/dist/index.js";
 
 const LICENSE_KEY =
@@ -157,7 +159,6 @@ const pluginList = [
   TableToolbar,
   TextPartLanguage,
   TextTransformation,
-  Title,
   TodoList,
   Underline,
   WordCount,
@@ -547,5 +548,114 @@ const editorConfig = {
   licenseKey: LICENSE_KEY || "YOUR_LICENSE_KEY",
 };
 
+// Function to set editor to read-only mode
+const setEditorReadOnly = (editor, isReadOnly = true) => {
+  if (!editor) {
+    return false;
+  }
+
+  try {
+    // Set the editor's read-only state
+    if (isReadOnly) {
+      editor.enableReadOnlyMode("external-lock");
+    } else {
+      editor.disableReadOnlyMode("external-lock");
+    }
+
+    // Add or remove a CSS class to the editor element for styling
+    const editorElement = editor.ui.view.element;
+    if (editorElement) {
+      if (isReadOnly) {
+        editorElement.classList.add("ck-read-only");
+      } else {
+        editorElement.classList.remove("ck-read-only");
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error setting read-only mode:", error);
+    return false;
+  }
+};
+
+// Function to check if editor is in read-only mode
+const isEditorReadOnly = (editor) => {
+  if (!editor) {
+    return false;
+  }
+
+  return editor.isReadOnly;
+};
+
+// Function to create editor with change detection and destroy handling
+const createEditorWithEvents = (
+  element,
+  config,
+  onChangeCallback,
+  onDestroyCallback
+) => {
+  let editor;
+  let hasChanged = false;
+  let initialData = "";
+
+  return ClassicEditor.create(element, config).then((newEditor) => {
+    editor = newEditor;
+    initialData = editor.getData();
+
+    // Set editor to read-only mode by default
+    setEditorReadOnly(editor, true);
+
+    // Set up change detection
+    editor.model.document.on("change:data", () => {
+      const currentData = editor.getData();
+      const dataHasChanged = currentData !== initialData;
+
+      // Only trigger if the change status has changed
+      if (dataHasChanged !== hasChanged) {
+        hasChanged = dataHasChanged;
+
+        if (onChangeCallback && typeof onChangeCallback === "function") {
+          onChangeCallback({
+            hasChanged,
+            currentData,
+            initialData,
+          });
+        }
+      }
+    });
+
+    // Set up destroy handling
+    if (onDestroyCallback && typeof onDestroyCallback === "function") {
+      // Store the original destroy method
+      const originalDestroy = editor.destroy;
+
+      // Override the destroy method
+      editor.destroy = function () {
+        // Call the callback before destroying
+        onDestroyCallback({
+          hasChanged,
+          finalData: editor.getData(),
+          initialData,
+        });
+
+        // Call the original destroy method
+        return originalDestroy.call(this);
+      };
+    }
+
+    return editor;
+  });
+};
+
 // Export shared parts
-export { ClassicEditor, pluginList, editorConfig, defaultConfig, LICENSE_KEY };
+export {
+  ClassicEditor,
+  pluginList,
+  editorConfig,
+  defaultConfig,
+  LICENSE_KEY,
+  createEditorWithEvents,
+  setEditorReadOnly,
+  isEditorReadOnly,
+};
