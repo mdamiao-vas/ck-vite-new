@@ -71,6 +71,7 @@ import {
   TableToolbar,
   TextPartLanguage,
   TextTransformation,
+  PageBreak,
   TodoList,
   Underline,
   WordCount,
@@ -82,6 +83,8 @@ Importing directly from "ckeditor5-premium-features" breaks the bundle if new pr
 fro mthe node modules like the multiLevelList.
  */
 import { MultiLevelList } from "@ckeditor/ckeditor5-list-multi-level/dist/index.js";
+
+import { ExportWord } from "@ckeditor/ckeditor5-export-word/dist/index.js";
 
 const LICENSE_KEY =
   "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NDMxMTk5OTksImp0aSI6ImVjMDAxNDU1LWEyZmItNDY3ZS05OGExLTU3MjgxNjMzZTM5MyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6IjRkMjgxNDVlIn0.Y9SdnrYDCVgEG9fEUovPnhOTktQ--uvrIO_XfpCxCxidiVl7sJnVaYrIC8IOdFqwlRE5aqzbKBfbfcbd5gR5zQ";
@@ -134,6 +137,7 @@ const pluginList = [
   Markdown,
   MediaEmbed,
   Mention,
+  PageBreak,
   Paragraph,
   PasteFromMarkdownExperimental,
   PasteFromOffice,
@@ -163,6 +167,7 @@ const pluginList = [
   Underline,
   WordCount,
   MultiLevelList,
+  ExportWord,
 ];
 
 // Default editor configuration
@@ -215,7 +220,8 @@ const defaultConfig = {
       "indent",
       "|",
       "sourceEditing",
-      "MultiLevelList",
+      "multiLevelList",
+      "exportWord",
     ],
     shouldNotGroupWhenFull: true,
   },
