@@ -5,7 +5,8 @@ import {
   AutoImage,
   AutoLink,
   Autosave,
-  Base64UploadAdapter,
+  //Base64UploadAdapter,
+  SimpleUploadAdapter,
   BlockQuote,
   Bold,
   Bookmark,
@@ -96,7 +97,8 @@ const pluginList = [
   AutoImage,
   AutoLink,
   Autosave,
-  Base64UploadAdapter,
+  //Base64UploadAdapter,
+  SimpleUploadAdapter,
   BlockQuote,
   Bold,
   Bookmark,
@@ -552,6 +554,10 @@ const editorConfig = {
   ...defaultConfig,
   // Add license key for premium features
   licenseKey: LICENSE_KEY || "YOUR_LICENSE_KEY",
+  simpleUpload: {
+    uploadUrl: "http://example.com", // Change to your upload endpoint
+    withCredentials: true,
+  },
 };
 
 // Function to set editor to read-only mode
