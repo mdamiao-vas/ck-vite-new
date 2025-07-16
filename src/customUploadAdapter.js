@@ -26,6 +26,8 @@ class CustomUploadAdapter {
             const response = JSON.parse(xhr.responseText);
             const uploadedUrl = response.url;
 
+            console.log("File uploaded successfully:", uploadedUrl);
+
             // Wait for the image to be ready
             this.waitForImageReady(uploadedUrl)
               .then(() => resolve({ default: uploadedUrl }))
@@ -44,20 +46,31 @@ class CustomUploadAdapter {
   waitForImageReady(url) {
     return new Promise((resolve, reject) => {
       let retryCount = 0; // Initialize retry counter
-      const maxRetries = 3; // Maximum number of retries
+      const maxRetries = 10; // Maximum number of retries
 
       const checkImageReady = () => {
         const xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
+        xhr.responseType = "arraybuffer"; // Expect binary response from the server
 
         xhr.onload = () => {
-          if (xhr.status === 200) {
-            resolve(); // Image is ready
+          if (xhr.status === 200 && xhr.response.byteLength > 0) {
+            console.log("Image is ready:", url);
+            console.log("Image size:", xhr.response.byteLength, "bytes");
+            console.log("Image content:", xhr.response);
+            console.log("Status code:", xhr.status);
+            resolve(); // Image is ready (binary content exists)
           } else if (retryCount < maxRetries) {
             retryCount++; // Increment retry counter
             setTimeout(checkImageReady, 3000); // Retry after 3 seconds
+            console.log(
+              `Retrying image readiness check (${retryCount}/${maxRetries})...`
+            );
           } else {
-            reject("Image readiness check failed after 3 attempts.");
+            console.error(
+              "Image readiness check failed after maximum retries."
+            );
+            reject("Image readiness check failed after 10 attempts.");
           }
         };
 
