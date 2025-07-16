@@ -1,3 +1,5 @@
+import { CustomUploadAdapterPlugin } from "./customUploadAdapter";
+
 import {
   ClassicEditor,
   Alignment,
@@ -6,7 +8,7 @@ import {
   AutoLink,
   Autosave,
   //Base64UploadAdapter,
-  SimpleUploadAdapter,
+  //SimpleUploadAdapter,
   BlockQuote,
   Bold,
   Bookmark,
@@ -98,7 +100,7 @@ const pluginList = [
   AutoLink,
   Autosave,
   //Base64UploadAdapter,
-  SimpleUploadAdapter,
+  //SimpleUploadAdapter,
   BlockQuote,
   Bold,
   Bookmark,
@@ -171,6 +173,9 @@ const pluginList = [
   MultiLevelList,
   ExportWord,
 ];
+
+// Add the custom upload adapter plugin to the plugin list
+pluginList.push(CustomUploadAdapterPlugin);
 
 // Default editor configuration
 const defaultConfig = {
@@ -554,9 +559,13 @@ const editorConfig = {
   ...defaultConfig,
   // Add license key for premium features
   licenseKey: LICENSE_KEY || "YOUR_LICENSE_KEY",
-  simpleUpload: {
+  customUpload: {
     uploadUrl: "http://example.com", // Change to your upload endpoint
     withCredentials: true,
+    headers: {
+      "X-CSRF-TOKEN": "CSRF-Token",
+      Authorization: "Bearer <JSON Web Token>",
+    },
   },
 };
 
