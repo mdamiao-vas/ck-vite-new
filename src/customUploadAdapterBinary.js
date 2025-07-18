@@ -77,7 +77,6 @@ class CustomUploadAdapter {
         xhr.onerror = () => reject("Failed to check image readiness.");
         xhr.send();
       };
-
       // Start the first check
       checkImageReady();
     });

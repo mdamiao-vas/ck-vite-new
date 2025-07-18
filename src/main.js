@@ -1,4 +1,4 @@
-import { CustomUploadAdapterPlugin } from "./customUploadAdapter";
+import { CustomUploadAdapterPlugin } from "./customUploadAdapterBinary";
 
 import {
   ClassicEditor,
