@@ -38,81 +38,54 @@ class CustomUploadAdapter {
               2
             )}MB, no compression needed`
           );
-          this.uploadFile(file, resolve, reject);
+          this.compressImage(file, 1.0, 1.0) // More aggressive compression with some resizing
+            .then((compressedFile) =>
+              this.uploadFile(compressedFile, resolve, reject)
+            )
+            .catch((error) => reject(error));
         }
       });
     });
   }
 
-  compressImage(file, quality, scaleFactor = 1.0) {
+  compressImage(file, quality = 0.7, scaleFactor = 1.0) {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       const img = new Image();
 
       img.onload = () => {
-        // Determine if we should convert format
-        let outputFormat = file.type;
-
-        // Convert PNG to WebP or JPEG when possible for better compression
-        if (file.type === "image/png" && this.supportsWebP()) {
-          outputFormat = "image/webp";
-        } else if (file.type === "image/png") {
-          // If WebP not supported, use JPEG for non-transparent PNGs
-          outputFormat = "image/jpeg";
-        }
-
         // Calculate dimensions with scaling
         const width = img.width * scaleFactor;
         const height = img.height * scaleFactor;
 
-        // Set canvas dimensions to scaled image dimensions
+        // Set canvas dimensions
         canvas.width = width;
         canvas.height = height;
 
-        // For JPEG and WebP, use white background
-        if (outputFormat === "image/jpeg") {
-          ctx.fillStyle = "#FFFFFF";
-          ctx.fillRect(0, 0, width, height);
-        }
+        // Fill canvas with white background for JPEG
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw image to canvas with smooth scaling
+        // Draw the image onto the canvas
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, 0, 0, width, height);
+
+        // Determine output format (WebP if supported, otherwise JPEG)
+        const outputFormat = this.supportsWebP() ? "image/webp" : "image/jpeg";
 
         // Convert canvas to blob with specified quality
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              // Try progressive compression if still too large
-              if (blob.size > 1024 * 1024 && quality > 0.5) {
-                // Try again with lower quality
-                URL.revokeObjectURL(img.src);
-                this.compressImage(file, quality - 0.1, scaleFactor * 0.9)
-                  .then(resolve)
-                  .catch(reject);
-                return;
-              }
-
-              // Create a new File object with compressed data
-              const extension = this.getExtensionFromMimeType(outputFormat);
+              const extension = outputFormat === "image/webp" ? "webp" : "jpg";
               const fileName = this.changeFileExtension(file.name, extension);
 
               const compressedFile = new File([blob], fileName, {
                 type: outputFormat,
                 lastModified: Date.now(),
               });
-
-              console.log(
-                `Compressed from ${(file.size / (1024 * 1024)).toFixed(
-                  2
-                )}MB to ${(compressedFile.size / (1024 * 1024)).toFixed(
-                  2
-                )}MB (${Math.round(
-                  (1 - compressedFile.size / file.size) * 100
-                )}% reduction)`
-              );
 
               URL.revokeObjectURL(img.src);
               resolve(compressedFile);
