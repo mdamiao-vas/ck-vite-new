@@ -1,4 +1,5 @@
 import { CustomUploadAdapterPlugin } from "./customUploadAdapterBinary";
+//import ProtectedBlock from "./protectedBlock";
 
 import {
   ClassicEditor,
@@ -78,6 +79,9 @@ import {
   TodoList,
   Underline,
   WordCount,
+  toWidget,
+  Widget,
+  Plugin,
 } from "ckeditor5";
 
 //import { MultiLevelList } from "ckeditor5-premium-features";
@@ -88,6 +92,58 @@ fro mthe node modules like the multiLevelList.
 import { MultiLevelList } from "@ckeditor/ckeditor5-list-multi-level/dist/index.js";
 
 import { ExportWord } from "@ckeditor/ckeditor5-export-word/dist/index.js";
+
+export default class ProtectedBlock extends Plugin {
+  static get requires() {
+    return [Widget];
+  }
+
+  init() {
+    const editor = this.editor;
+
+    // Register the schema
+    editor.model.schema.register("protectedBlock", {
+      isObject: true, // Makes it atomic
+      isBlock: true, // Behaves like a block
+      allowWhere: "$block", // Can appear where other blocks can
+      allowContentOf: "$root", // Allow child elements inside the block
+    });
+
+    // Upcast conversion: Convert HTML elements with the class `protected-block` into `protectedBlock` model elements
+    editor.conversion.for("upcast").elementToElement({
+      model: "protectedBlock",
+      view: {
+        name: "div",
+        classes: "protected-block",
+        contenteditable: "false",
+      },
+    });
+
+    // Data downcast conversion: Convert `protectedBlock` model elements back into HTML elements with the class `protected-block`
+    editor.conversion.for("dataDowncast").elementToElement({
+      model: "protectedBlock",
+      view: {
+        name: "div",
+        classes: "protected-block",
+        contenteditable: "false",
+      },
+    });
+
+    // Editing downcast conversion: Render `protectedBlock` model elements as non-editable widgets in the editor
+    editor.conversion.for("editingDowncast").elementToElement({
+      model: "protectedBlock",
+      view: (modelElement, { writer }) => {
+        const div = writer.createContainerElement("div", {
+          class: "protected-block",
+          contenteditable: "false", // Ensure the block is non-editable
+        });
+
+        // Make it behave like a widget (atomic + selectable as a whole)
+        return toWidget(div, writer, { label: "Protected Block" });
+      },
+    });
+  }
+}
 
 const LICENSE_KEY =
   "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NDMxMTk5OTksImp0aSI6ImVjMDAxNDU1LWEyZmItNDY3ZS05OGExLTU3MjgxNjMzZTM5MyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6IjRkMjgxNDVlIn0.Y9SdnrYDCVgEG9fEUovPnhOTktQ--uvrIO_XfpCxCxidiVl7sJnVaYrIC8IOdFqwlRE5aqzbKBfbfcbd5gR5zQ";
@@ -172,6 +228,7 @@ const pluginList = [
   WordCount,
   MultiLevelList,
   ExportWord,
+  ProtectedBlock,
 ];
 
 // Add the custom upload adapter plugin to the plugin list
