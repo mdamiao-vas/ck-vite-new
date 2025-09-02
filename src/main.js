@@ -1,5 +1,6 @@
 import { CustomUploadAdapterPlugin } from "./customUploadAdapterBinary";
 //import ProtectedBlock from "./protectedBlock";
+import { CustomTable } from "./table-widget"; // Import the ProtectedBlock plugin
 
 import {
   ClassicEditor,
@@ -67,7 +68,7 @@ import {
   Style,
   Subscript,
   Superscript,
-  Table,
+  //Table,
   TableCaption,
   TableCellProperties,
   TableColumnResize,
@@ -111,21 +112,37 @@ export default class ProtectedBlock extends Plugin {
 
     // Upcast conversion: Convert HTML elements with the class `protected-block` into `protectedBlock` model elements
     editor.conversion.for("upcast").elementToElement({
-      model: "protectedBlock",
+      model: (viewElement, { writer }) => {
+        const attributes = {};
+
+        // Copy all attributes from the view element
+        for (const [key, value] of viewElement.getAttributes()) {
+          attributes[key] = value;
+        }
+
+        return writer.createElement("protectedBlock", attributes);
+      },
       view: {
         name: "div",
         classes: "protected-block",
-        contenteditable: "false",
       },
     });
 
     // Data downcast conversion: Convert `protectedBlock` model elements back into HTML elements with the class `protected-block`
     editor.conversion.for("dataDowncast").elementToElement({
       model: "protectedBlock",
-      view: {
-        name: "div",
-        classes: "protected-block",
-        contenteditable: "false",
+      view: (modelElement, { writer }) => {
+        const div = writer.createContainerElement("div", {
+          class: "protected-block",
+        });
+
+        // Copy all attributes from the model element
+        const attributes = modelElement.getAttributes();
+        for (const [key, value] of attributes) {
+          writer.setAttribute(key, value, div);
+        }
+
+        return div;
       },
     });
 
@@ -138,15 +155,107 @@ export default class ProtectedBlock extends Plugin {
           contenteditable: "false", // Ensure the block is non-editable
         });
 
-        // Make it behave like a widget (atomic + selectable as a whole)
+        // Copy all attributes from the model element
+        const attributes = modelElement.getAttributes();
+        for (const [key, value] of attributes) {
+          writer.setAttribute(key, value, div);
+        }
+
+        // Make all child elements, including tables and cells, non-editable
+        writer.setCustomProperty("isProtectedBlock", true, div);
+
         return toWidget(div, writer, { label: "Protected Block" });
       },
     });
+
+    editor.conversion.for("editingDowncast").add((dispatcher) => {
+      dispatcher.on("insert:table", (evt, data, conversionApi) => {
+        const viewWriter = conversionApi.writer;
+        const viewElement = conversionApi.mapper.toViewElement(data.item);
+
+        if (viewElement) {
+          viewWriter.setAttribute("contenteditable", "false", viewElement);
+
+          // Set `contenteditable="false"` on all table cells
+          for (const child of viewElement.getChildren()) {
+            if (child.is("element", "tr")) {
+              for (const cell of child.getChildren()) {
+                if (cell.is("element", "td") || cell.is("element", "th")) {
+                  viewWriter.setAttribute("contenteditable", "false", cell);
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+
+    editor.model.schema.extend("table", {
+      allowIn: "protectedBlock", // Allow tables inside protectedBlock
+      isLimit: true, // Prevent editing of the table
+    });
+
+    // Prevent editing of child elements inside the protectedBlock
+    editor.editing.view.document.on("mousedown", (evt, data) => {
+      const target = data.target;
+
+      // Check if the clicked element is inside a protected block
+      const protectedBlock = target.findAncestor((element) =>
+        element.hasClass("protected-block")
+      );
+
+      if (protectedBlock) {
+        evt.stop(); // Prevent interaction
+        console.log("Interaction with protected block prevented 3.");
+      } else {
+        // Check if the clicked element is part of a table inside the protected block
+        const tableAncestor = target.findAncestor(
+          (element) => element.is("table") || element.is("figure")
+        );
+
+        if (tableAncestor) {
+          const parentProtectedBlock = tableAncestor.findAncestor((element) =>
+            element.hasClass("protected-block")
+          );
+
+          if (parentProtectedBlock) {
+            evt.stop(); // Prevent interaction with the table inside the protected block
+            console.log(
+              "Interaction with table inside protected block prevented 2."
+            );
+          }
+        }
+      }
+    });
+
+    editor.commands.get("delete").on("execute", (evt, data) => {
+      const selection = editor.model.document.selection;
+      const selectedElement = selection.getSelectedElement();
+
+      if (selectedElement && selectedElement.name === "protectedBlock") {
+        evt.stop(); // Prevent deletion
+        console.log("Deletion of protectedBlock prevented.");
+      }
+    });
+
+    const originalDeleteContent = editor.model.deleteContent;
+
+    editor.model.deleteContent = (selection, options) => {
+      const selectedElement = selection.getSelectedElement();
+
+      if (selectedElement && selectedElement.name === "protectedBlock") {
+        console.log("Deletion of protectedBlock content prevented.");
+        return; // Prevent deletion
+      }
+
+      // Call the original deleteContent method for other cases
+      return originalDeleteContent.call(editor.model, selection, options);
+    };
   }
 }
 
 const LICENSE_KEY =
-  "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NDMxMTk5OTksImp0aSI6ImVjMDAxNDU1LWEyZmItNDY3ZS05OGExLTU3MjgxNjMzZTM5MyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6IjRkMjgxNDVlIn0.Y9SdnrYDCVgEG9fEUovPnhOTktQ--uvrIO_XfpCxCxidiVl7sJnVaYrIC8IOdFqwlRE5aqzbKBfbfcbd5gR5zQ";
+  "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NDUxMDcxOTksImp0aSI6IjNjMzhmMDI4LTUzN2QtNDQ2OC1hM2JkLWNmMmVlOGUwMWFkMSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsic2giLCJkcnVwYWwiXSwid2hpdGVMYWJlbCI6dHJ1ZSwibGljZW5zZVR5cGUiOiJkZXZlbG9wbWVudCIsImZlYXR1cmVzIjpbIkRSVVAiLCJNTEwiXSwidmMiOiJlMGNjNTg0YiJ9.BYKd4gXafsB1mrO3aXfpSEpR3Y14-p4unZrE-s0fU7u4s3nUWvXAXx5oiRwu7y0djtSN2TRSNatyyvzs3F6uwA";
 
 // Create a list of plugins which will be exported
 const pluginList = [
@@ -215,7 +324,8 @@ const pluginList = [
   Style,
   Subscript,
   Superscript,
-  Table,
+  //Table,
+  CustomTable,
   TableCaption,
   TableCellProperties,
   TableColumnResize,
