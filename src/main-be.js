@@ -1,5 +1,6 @@
 import {
-  ClassicEditor,
+  //ClassicEditor,
+  DecoupledEditor,
   pluginList,
   editorConfig,
   LICENSE_KEY,
@@ -9,7 +10,7 @@ import {
   isEditorReadOnly,
 } from "./main.js";
 
-class CKEditorCS extends ClassicEditor {
+class CKEditorCS extends DecoupledEditor {
   // Add a static method to create editor with event handlers
   static createWithEvents(
     element,

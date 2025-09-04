@@ -3,7 +3,8 @@ import { CustomUploadAdapterPlugin } from "./customUploadAdapterBinary";
 import { CustomTable } from "./table-widget"; // Import the ProtectedBlock plugin
 
 import {
-  ClassicEditor,
+  //ClassicEditor,
+  DecoupledEditor,
   Alignment,
   Autoformat,
   AutoImage,
@@ -737,6 +738,17 @@ const defaultConfig = {
       right: "12mm",
     },
   },
+  exportWord: {
+    stylesheets: ["styles.css"],
+    fileName: "document.docx",
+    converterOptions: {
+      format: "A4",
+      margin_top: "20mm",
+      margin_bottom: "20mm",
+      margin_left: "12mm",
+      margin_right: "12mm",
+    },
+  },
 };
 
 // Create the editor configuration with plugins
@@ -806,7 +818,7 @@ const createEditorWithEvents = (
   let hasChanged = false;
   let initialData = "";
 
-  return ClassicEditor.create(element, config).then((newEditor) => {
+  return DecoupledEditor.create(element, config).then((newEditor) => {
     editor = newEditor;
     initialData = editor.getData();
 
@@ -857,7 +869,7 @@ const createEditorWithEvents = (
 
 // Export shared parts
 export {
-  ClassicEditor,
+  DecoupledEditor,
   pluginList,
   editorConfig,
   defaultConfig,
