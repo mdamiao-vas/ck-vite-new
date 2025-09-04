@@ -94,6 +94,8 @@ import { MultiLevelList } from "@ckeditor/ckeditor5-list-multi-level/dist/index.
 
 import { ExportWord } from "@ckeditor/ckeditor5-export-word/dist/index.js";
 
+import { Pagination } from "@ckeditor/ckeditor5-pagination/dist/index.js";
+
 export default class ProtectedBlock extends Plugin {
   static get requires() {
     return [Widget];
@@ -255,7 +257,7 @@ export default class ProtectedBlock extends Plugin {
 }
 
 const LICENSE_KEY =
-  "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NDUxMDcxOTksImp0aSI6IjNjMzhmMDI4LTUzN2QtNDQ2OC1hM2JkLWNmMmVlOGUwMWFkMSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsic2giLCJkcnVwYWwiXSwid2hpdGVMYWJlbCI6dHJ1ZSwibGljZW5zZVR5cGUiOiJkZXZlbG9wbWVudCIsImZlYXR1cmVzIjpbIkRSVVAiLCJNTEwiXSwidmMiOiJlMGNjNTg0YiJ9.BYKd4gXafsB1mrO3aXfpSEpR3Y14-p4unZrE-s0fU7u4s3nUWvXAXx5oiRwu7y0djtSN2TRSNatyyvzs3F6uwA";
+  "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NTgxNTM1OTksImp0aSI6IjY3N2FjOWMxLTI2MGItNDU3MC1hZDUyLWI5ZGI2NTg2YzRhZSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImM1MzRiYjZmIn0.jKYXb80Wd1as3zGfiIwn-m9s51ie9B44tD3Ti9szTrWTx0XqlCcnDT7FJXpnXqMgQL9A6HMdbbafD14sINgnqw";
 
 // Create a list of plugins which will be exported
 const pluginList = [
@@ -339,6 +341,7 @@ const pluginList = [
   MultiLevelList,
   ExportWord,
   ProtectedBlock,
+  Pagination,
 ];
 
 // Add the custom upload adapter plugin to the plugin list
@@ -348,6 +351,10 @@ pluginList.push(CustomUploadAdapterPlugin);
 const defaultConfig = {
   toolbar: {
     items: [
+      "previousPage",
+      "nextPage",
+      "pageNavigation",
+      "|",
       "undo",
       "redo",
       "|",
@@ -718,6 +725,18 @@ const defaultConfig = {
     ],
   },
   placeholder: "Type or paste your content here!",
+  pagination: {
+    // A4
+    pageWidth: "210mm",
+    pageHeight: "297mm",
+
+    pageMargins: {
+      top: "20mm",
+      bottom: "20mm",
+      left: "12mm",
+      right: "12mm",
+    },
+  },
 };
 
 // Create the editor configuration with plugins
