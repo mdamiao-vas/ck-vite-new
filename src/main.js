@@ -1,17 +1,13 @@
 import { CustomUploadAdapterPlugin } from "./customUploadAdapterBinary";
-//import ProtectedBlock from "./protectedBlock";
-import { CustomTable } from "./table-widget"; // Import the ProtectedBlock plugin
 
 import {
-  //ClassicEditor,
   DecoupledEditor,
+  //ClassicEditor,
   Alignment,
   Autoformat,
   AutoImage,
   AutoLink,
   Autosave,
-  //Base64UploadAdapter,
-  //SimpleUploadAdapter,
   BlockQuote,
   Bold,
   Bookmark,
@@ -57,7 +53,7 @@ import {
   PasteFromOffice,
   RemoveFormat,
   ShowBlocks,
-  SourceEditing,
+  //SourceEditing,
   SpecialCharacters,
   SpecialCharactersArrows,
   SpecialCharactersCurrency,
@@ -69,7 +65,7 @@ import {
   Style,
   Subscript,
   Superscript,
-  //Table,
+  Table,
   TableCaption,
   TableCellProperties,
   TableColumnResize,
@@ -81,181 +77,11 @@ import {
   TodoList,
   Underline,
   WordCount,
-  toWidget,
-  Widget,
-  Plugin,
 } from "ckeditor5";
 
-//import { MultiLevelList } from "ckeditor5-premium-features";
-/* 
-Importing directly from "ckeditor5-premium-features" breaks the bundle if new premium features are needed you need to import them directly
-fro mthe node modules like the multiLevelList.
- */
 import { MultiLevelList } from "@ckeditor/ckeditor5-list-multi-level/dist/index.js";
 
-import { ExportWord } from "@ckeditor/ckeditor5-export-word/dist/index.js";
-
 import { Pagination } from "@ckeditor/ckeditor5-pagination/dist/index.js";
-
-export default class ProtectedBlock extends Plugin {
-  static get requires() {
-    return [Widget];
-  }
-
-  init() {
-    const editor = this.editor;
-
-    // Register the schema
-    editor.model.schema.register("protectedBlock", {
-      isObject: true, // Makes it atomic
-      isBlock: true, // Behaves like a block
-      allowWhere: "$block", // Can appear where other blocks can
-      allowContentOf: "$root", // Allow child elements inside the block
-    });
-
-    // Upcast conversion: Convert HTML elements with the class `protected-block` into `protectedBlock` model elements
-    editor.conversion.for("upcast").elementToElement({
-      model: (viewElement, { writer }) => {
-        const attributes = {};
-
-        // Copy all attributes from the view element
-        for (const [key, value] of viewElement.getAttributes()) {
-          attributes[key] = value;
-        }
-
-        return writer.createElement("protectedBlock", attributes);
-      },
-      view: {
-        name: "div",
-        classes: "protected-block",
-      },
-    });
-
-    // Data downcast conversion: Convert `protectedBlock` model elements back into HTML elements with the class `protected-block`
-    editor.conversion.for("dataDowncast").elementToElement({
-      model: "protectedBlock",
-      view: (modelElement, { writer }) => {
-        const div = writer.createContainerElement("div", {
-          class: "protected-block",
-        });
-
-        // Copy all attributes from the model element
-        const attributes = modelElement.getAttributes();
-        for (const [key, value] of attributes) {
-          writer.setAttribute(key, value, div);
-        }
-
-        return div;
-      },
-    });
-
-    // Editing downcast conversion: Render `protectedBlock` model elements as non-editable widgets in the editor
-    editor.conversion.for("editingDowncast").elementToElement({
-      model: "protectedBlock",
-      view: (modelElement, { writer }) => {
-        const div = writer.createContainerElement("div", {
-          class: "protected-block",
-          contenteditable: "false", // Ensure the block is non-editable
-        });
-
-        // Copy all attributes from the model element
-        const attributes = modelElement.getAttributes();
-        for (const [key, value] of attributes) {
-          writer.setAttribute(key, value, div);
-        }
-
-        // Make all child elements, including tables and cells, non-editable
-        writer.setCustomProperty("isProtectedBlock", true, div);
-
-        return toWidget(div, writer, { label: "Protected Block" });
-      },
-    });
-
-    editor.conversion.for("editingDowncast").add((dispatcher) => {
-      dispatcher.on("insert:table", (evt, data, conversionApi) => {
-        const viewWriter = conversionApi.writer;
-        const viewElement = conversionApi.mapper.toViewElement(data.item);
-
-        if (viewElement) {
-          viewWriter.setAttribute("contenteditable", "false", viewElement);
-
-          // Set `contenteditable="false"` on all table cells
-          for (const child of viewElement.getChildren()) {
-            if (child.is("element", "tr")) {
-              for (const cell of child.getChildren()) {
-                if (cell.is("element", "td") || cell.is("element", "th")) {
-                  viewWriter.setAttribute("contenteditable", "false", cell);
-                }
-              }
-            }
-          }
-        }
-      });
-    });
-
-    editor.model.schema.extend("table", {
-      allowIn: "protectedBlock", // Allow tables inside protectedBlock
-      isLimit: true, // Prevent editing of the table
-    });
-
-    // Prevent editing of child elements inside the protectedBlock
-    editor.editing.view.document.on("mousedown", (evt, data) => {
-      const target = data.target;
-
-      // Check if the clicked element is inside a protected block
-      const protectedBlock = target.findAncestor((element) =>
-        element.hasClass("protected-block")
-      );
-
-      if (protectedBlock) {
-        evt.stop(); // Prevent interaction
-        console.log("Interaction with protected block prevented 3.");
-      } else {
-        // Check if the clicked element is part of a table inside the protected block
-        const tableAncestor = target.findAncestor(
-          (element) => element.is("table") || element.is("figure")
-        );
-
-        if (tableAncestor) {
-          const parentProtectedBlock = tableAncestor.findAncestor((element) =>
-            element.hasClass("protected-block")
-          );
-
-          if (parentProtectedBlock) {
-            evt.stop(); // Prevent interaction with the table inside the protected block
-            console.log(
-              "Interaction with table inside protected block prevented 2."
-            );
-          }
-        }
-      }
-    });
-
-    editor.commands.get("delete").on("execute", (evt, data) => {
-      const selection = editor.model.document.selection;
-      const selectedElement = selection.getSelectedElement();
-
-      if (selectedElement && selectedElement.name === "protectedBlock") {
-        evt.stop(); // Prevent deletion
-        console.log("Deletion of protectedBlock prevented.");
-      }
-    });
-
-    const originalDeleteContent = editor.model.deleteContent;
-
-    editor.model.deleteContent = (selection, options) => {
-      const selectedElement = selection.getSelectedElement();
-
-      if (selectedElement && selectedElement.name === "protectedBlock") {
-        console.log("Deletion of protectedBlock content prevented.");
-        return; // Prevent deletion
-      }
-
-      // Call the original deleteContent method for other cases
-      return originalDeleteContent.call(editor.model, selection, options);
-    };
-  }
-}
 
 const LICENSE_KEY =
   "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NTgxNTM1OTksImp0aSI6IjY3N2FjOWMxLTI2MGItNDU3MC1hZDUyLWI5ZGI2NTg2YzRhZSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImM1MzRiYjZmIn0.jKYXb80Wd1as3zGfiIwn-m9s51ie9B44tD3Ti9szTrWTx0XqlCcnDT7FJXpnXqMgQL9A6HMdbbafD14sINgnqw";
@@ -267,8 +93,6 @@ const pluginList = [
   AutoImage,
   AutoLink,
   Autosave,
-  //Base64UploadAdapter,
-  //SimpleUploadAdapter,
   BlockQuote,
   Bold,
   Bookmark,
@@ -315,7 +139,7 @@ const pluginList = [
   PasteFromOffice,
   RemoveFormat,
   ShowBlocks,
-  SourceEditing,
+  //SourceEditing,
   SpecialCharacters,
   SpecialCharactersArrows,
   SpecialCharactersCurrency,
@@ -327,8 +151,7 @@ const pluginList = [
   Style,
   Subscript,
   Superscript,
-  //Table,
-  CustomTable,
+  Table,
   TableCaption,
   TableCellProperties,
   TableColumnResize,
@@ -340,8 +163,6 @@ const pluginList = [
   Underline,
   WordCount,
   MultiLevelList,
-  ExportWord,
-  ProtectedBlock,
   Pagination,
 ];
 
@@ -401,9 +222,8 @@ const defaultConfig = {
       "outdent",
       "indent",
       "|",
-      "sourceEditing",
+      // "sourceEditing",
       "multiLevelList",
-      "exportWord",
     ],
     shouldNotGroupWhenFull: true,
   },
@@ -738,17 +558,6 @@ const defaultConfig = {
       right: "12mm",
     },
   },
-  exportWord: {
-    stylesheets: ["styles.css"],
-    fileName: "document.docx",
-    converterOptions: {
-      format: "A4",
-      margin_top: "20mm",
-      margin_bottom: "20mm",
-      margin_left: "12mm",
-      margin_right: "12mm",
-    },
-  },
 };
 
 // Create the editor configuration with plugins
@@ -757,6 +566,17 @@ const editorConfig = {
   ...defaultConfig,
   // Add license key for premium features
   licenseKey: LICENSE_KEY || "YOUR_LICENSE_KEY",
+  fullPage: true, // Enable full-page editing
+  htmlSupport: {
+    allow: [
+      {
+        name: /.*/, // Allow all elements
+        attributes: true, // Allow all attributes
+        classes: true, // Allow all classes
+        styles: true, // Allow all styles
+      },
+    ],
+  },
   customUpload: {
     uploadUrl: "http://example.com", // Change to your upload endpoint
     withCredentials: true,
@@ -828,6 +648,7 @@ const createEditorWithEvents = (
     // Set up change detection
     editor.model.document.on("change:data", () => {
       const currentData = editor.getData();
+      console.log(currentData);
       const dataHasChanged = currentData !== initialData;
 
       // Only trigger if the change status has changed
@@ -869,6 +690,7 @@ const createEditorWithEvents = (
 
 // Export shared parts
 export {
+  //ClassicEditor,
   DecoupledEditor,
   pluginList,
   editorConfig,

@@ -3,57 +3,33 @@
   <head>
     <meta charset="utf-8" />
     <title>CKEditor 5 Sample</title>
+    <link rel="stylesheet" href="./src/stylecdn.css" />
     <link
       rel="stylesheet"
       href="https://cdn.ckeditor.com/ckeditor5/46.0.3/ckeditor5.css"
+      crossorigin
     />
     <link
-      rel="icon"
-      type="image/png"
-      href="https://ckeditor.com/assets/images/favicons/32x32.png"
-      sizes="32x32"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      href="https://ckeditor.com/assets/images/favicons/96x96.png"
-      sizes="96x96"
-    />
-    <link
-      rel="apple-touch-icon"
-      type="image/png"
-      href="https://ckeditor.com/assets/images/favicons/120x120.png"
-      sizes="120x120"
-    />
-    <link
-      rel="apple-touch-icon"
-      type="image/png"
-      href="https://ckeditor.com/assets/images/favicons/152x152.png"
-      sizes="152x152"
-    />
-    <link
-      rel="apple-touch-icon"
-      type="image/png"
-      href="https://ckeditor.com/assets/images/favicons/167x167.png"
-      sizes="167x167"
-    />
-    <link
-      rel="apple-touch-icon"
-      type="image/png"
-      href="https://ckeditor.com/assets/images/favicons/180x180.png"
-      sizes="180x180"
+      rel="stylesheet"
+      href="https://cdn.ckeditor.com/ckeditor5-premium-features/46.0.3/ckeditor5-premium-features.css"
+      crossorigin
     />
   </head>
   <body>
-    <div class="document-container">
-      <!-- Toolbar container -->
-      <div id="toolbar-container"></div>
-
-      <!-- Editor container -->
-      <div class="editor-container">
-        <div id="editor" class="test-editor"></div>
+    <div class="main-container">
+      <div
+        class="editor-container editor-container_document-editor editor-container_include-outline editor-container_include-annotations editor-container_include-pagination editor-container_include-fullscreen"
+        id="editorcontainer"
+      >
+        <div class="editor-container__toolbar" id="editortoolbar"></div>
+        <div class="editor-container__editor-wrapper">
+          <div class="editor-container__sidebar" id="editoroutline"></div>
+          <div class="editor-container__editor"><div id="editor"></div></div>
+          <div class="editor-container__sidebar" id="editorannotations"></div>
+        </div>
       </div>
     </div>
+
     <script type="module" src="./src/main-fe.js"></script>
   </body>
 </html>

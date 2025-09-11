@@ -1,6 +1,6 @@
 import {
-  //ClassicEditor,
   DecoupledEditor,
+  //ClassicEditor,
   pluginList,
   editorConfig,
   LICENSE_KEY,
@@ -120,14 +120,19 @@ CKEditorCS.create = function (element, config) {
 
   // Use the original create method
   return originalCreate.call(this, element, editorConfig).then((editor) => {
-    // Add a simple change detection property
     editor.hasChanged = false;
-    const initialData = editor.getData();
+    const initialData = editor.getData(); // This is the initial body content
 
-    // Set up basic change detection
+    // Set up change detection
     editor.model.document.on("change:data", () => {
-      const currentData = editor.getData();
-      editor.hasChanged = currentData !== initialData;
+      const currentBodyData = editor.getData(); // Current body content
+
+      const dataHasChanged = currentBodyData !== initialData;
+      if (dataHasChanged !== editor.hasChanged) {
+        editor.hasChanged = dataHasChanged;
+        // Use fullHtml in your callback
+        console.log("Editor content changed:", editor.hasChanged);
+      }
     });
 
     // Register the editor instance
@@ -136,7 +141,7 @@ CKEditorCS.create = function (element, config) {
     }
 
     // Set editor to read-only mode by default
-    setEditorReadOnly(editor, true);
+    setEditorReadOnly(editor, false);
 
     return editor;
   });
