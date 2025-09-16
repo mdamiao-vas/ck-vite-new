@@ -45,7 +45,7 @@ import {
   LinkImage,
   List,
   ListProperties,
-  Markdown,
+  //Markdown,
   MediaEmbed,
   Mention,
   Paragraph,
@@ -82,6 +82,8 @@ import {
 import { MultiLevelList } from "@ckeditor/ckeditor5-list-multi-level/dist/index.js";
 
 import { Pagination } from "@ckeditor/ckeditor5-pagination/dist/index.js";
+
+import { ExportPdf } from "@ckeditor/ckeditor5-export-pdf/dist/index.js";
 
 const LICENSE_KEY =
   "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NTgxNTM1OTksImp0aSI6IjY3N2FjOWMxLTI2MGItNDU3MC1hZDUyLWI5ZGI2NTg2YzRhZSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImM1MzRiYjZmIn0.jKYXb80Wd1as3zGfiIwn-m9s51ie9B44tD3Ti9szTrWTx0XqlCcnDT7FJXpnXqMgQL9A6HMdbbafD14sINgnqw";
@@ -130,7 +132,7 @@ const pluginList = [
   LinkImage,
   List,
   ListProperties,
-  Markdown,
+  //Markdown,
   MediaEmbed,
   Mention,
   PageBreak,
@@ -164,6 +166,7 @@ const pluginList = [
   WordCount,
   MultiLevelList,
   Pagination,
+  ExportPdf,
 ];
 
 // Add the custom upload adapter plugin to the plugin list
@@ -224,6 +227,7 @@ const defaultConfig = {
       "|",
       // "sourceEditing",
       "multiLevelList",
+      "exportPdf",
     ],
     shouldNotGroupWhenFull: true,
   },
@@ -552,11 +556,32 @@ const defaultConfig = {
     pageHeight: "297mm",
 
     pageMargins: {
-      top: "20mm",
-      bottom: "20mm",
-      left: "12mm",
-      right: "12mm",
+      top: "25mm",
+      bottom: "30mm",
+      right: "15mm",
+      left: "15mm",
     },
+  },
+  exportPdf: {
+    stylesheets: [
+      "https://ckeditor.com/docs/ckeditor5/46.0.3/assets/pagination-fonts.css",
+      "https://cdn.ckeditor.com/ckeditor5/46.0.3/ckeditor5.css",
+      "https://cdn.ckeditor.com/ckeditor5-premium-features/46.0.3/ckeditor5-premium-features.css",
+      "https://ckeditor.com/docs/ckeditor5/46.0.3/assets/pagination.css",
+    ],
+
+    fileName: "export-pdf-demo.pdf",
+    converterOptions: {
+      format: "A4",
+      margin_top: "25mm",
+      margin_bottom: "30mm",
+      margin_right: "15mm",
+      margin_left: "15mm",
+      page_orientation: "portrait",
+      wait_for_network: true,
+      wait_time: 0,
+    },
+    dataCallback: (editor) => editor.getData(),
   },
 };
 

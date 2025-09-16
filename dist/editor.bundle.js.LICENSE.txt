@@ -1,3 +1,5 @@
+/* #__PURE__ -- @preserve */
+
 /* istanbul ignore else -- @preserve */
 
 /* istanbul ignore else: This is always true because otherwise it would not register a reducer callback. -- @preserve */
